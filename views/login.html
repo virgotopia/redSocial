@@ -1,0 +1,30 @@
+<div data-ng-controller="loginCtrl">
+
+    <p><a href="#/!">Main</a></p>
+
+      <!-- Container for the demo -->
+      <div class="">
+        <div class="">
+          <h2 class="">Firebase Email &amp; Password Authentication</h2>
+        </div>
+        <div class="">
+          <p>Enter an email and password below and either sign in to an existing account or sign up</p>
+
+          <input class="" style="display:inline;width:auto;" type="text" id="email" name="email" placeholder="Email"/>
+          &nbsp;&nbsp;&nbsp;
+          <input class="" style="display:inline;width:auto;" type="password" id="password" name="password" placeholder="Password"/>
+          <br/><br/>
+          <button disabled class="" id="quickstart-sign-in" name="signin">Sign In</button>
+          &nbsp;&nbsp;&nbsp;
+          <button class="" id="quickstart-sign-up" name="signup">Sign Up</button>
+
+          <!-- Container where we'll display the user details -->
+          <div class="quickstart-user-details-container">
+            Firebase sign-in status: <span id="quickstart-sign-in-status">Unknown</span>
+            <div>Firebase auth <code>currentUser</code> object value:</div>
+            <pre><code id="quickstart-account-details">null</code></pre>
+          </div>
+        </div>
+      </div>
+
+</div>
