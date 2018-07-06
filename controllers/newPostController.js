@@ -1,3 +1,5 @@
+// Adapted after https://github.com/firebase/quickstart-js/tree/master/database
+
 app.controller("newPostCtrl", function($scope) {
   var messageForm = document.getElementById("message-form");
   var messageInput = document.getElementById("new-post-message");
