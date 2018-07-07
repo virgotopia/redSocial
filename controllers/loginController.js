@@ -100,6 +100,7 @@ app.controller("loginCtrl", function($scope) {
         document.getElementById(
           "quickstart-account-details"
         ).textContent = JSON.stringify(user, null, "  ");
+        document.getElementById("quickstart-sign-up").disabled = true;
         // [END_EXCLUDE]
       } else {
         // User is signed out.
@@ -109,6 +110,7 @@ app.controller("loginCtrl", function($scope) {
         document.getElementById("quickstart-sign-in").textContent = "Sign in";
         document.getElementById("quickstart-account-details").textContent =
           "null";
+        document.getElementById("quickstart-sign-up").disabled = false;
         // [END_EXCLUDE]
       }
       // [START_EXCLUDE silent]

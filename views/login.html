@@ -1,9 +1,21 @@
 <div data-ng-controller="loginCtrl">
 
-    <p><a href="#/!">Main</a></p>
+  <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
 
-      <!-- Container for the demo -->
-      <div class="">
+        <!-- Header section containing logo and menu -->
+        <header class="header mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
+
+            <!-- Navigation Bar -->
+            <div class="tab mdl-layout__header-row mdl-color--light-blue-600">
+              <div class="mdl-tab">
+                  <a href="#/!" class="mdl-layout__tab is-active mdl-button mdl-js-button mdl-js-ripple-effect">
+                      <i class="material-icons">chevron_left</i> Main
+                  </a>
+              </div>
+            </div>
+        </header>
+
+    <main class="mdl-layout__content mdl-color--grey-100">
         <div class="">
           <h2 class="">Firebase Email &amp; Password Authentication</h2>
         </div>
@@ -25,6 +37,6 @@
             <pre><code id="quickstart-account-details">null</code></pre>
           </div>
         </div>
-      </div>
-
+    </main>
+  </div>
 </div>

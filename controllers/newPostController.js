@@ -5,13 +5,6 @@ app.controller("newPostCtrl", function($scope) {
   var messageInput = document.getElementById("new-post-message");
   var titleInput = document.getElementById("new-post-title");
   var addPost = document.getElementById("add-post");
-  var addButton = document.getElementById("add");
-  var recentPostsSection = document.getElementById("recent-posts-list");
-  var userPostsSection = document.getElementById("user-posts-list");
-  var topUserPostsSection = document.getElementById("top-user-posts-list");
-  var recentMenuButton = document.getElementById("menu-recent");
-  var myPostsMenuButton = document.getElementById("menu-my-posts");
-  var myTopPostsMenuButton = document.getElementById("menu-my-top-posts");
   var listeningFirebaseRefs = [];
 
   function init() {
@@ -32,23 +25,9 @@ app.controller("newPostCtrl", function($scope) {
       }
     };
 
-    // Bind menu buttons.
-    recentMenuButton.onclick = function() {
-      showSection(recentPostsSection, recentMenuButton);
-    };
-    myPostsMenuButton.onclick = function() {
-      showSection(userPostsSection, myPostsMenuButton);
-    };
-    myTopPostsMenuButton.onclick = function() {
-      showSection(topUserPostsSection, myTopPostsMenuButton);
-    };
-
-    addButton.onclick = function() {
-      showSection(addPost);
-      messageInput.value = "";
-      titleInput.value = "";
-    };
-    recentMenuButton.onclick();
+    showSection(addPost);
+    messageInput.value = "";
+    titleInput.value = "";
   }
   init();
 
@@ -79,35 +58,14 @@ app.controller("newPostCtrl", function($scope) {
     updates["/posts/" + newPostKey] = postData;
     updates["/user-posts/" + uid + "/" + newPostKey] = postData;
 
-    return firebase
+    firebase
       .database()
       .ref()
       .update(updates);
+    window.location.href = "#/";
+    //return
   }
   // [END write_fan_out]
-
-  /**
-   * Star/unstar post.
-   */
-  // [START post_stars_transaction]
-  function toggleStar(postRef, uid) {
-    postRef.transaction(function(post) {
-      if (post) {
-        if (post.stars && post.stars[uid]) {
-          post.starCount--;
-          post.stars[uid] = null;
-        } else {
-          post.starCount++;
-          if (!post.stars) {
-            post.stars = {};
-          }
-          post.stars[uid] = true;
-        }
-      }
-      return post;
-    });
-  }
-  // [END post_stars_transaction]
 
   /**
    * Creates a post element.
@@ -249,157 +207,6 @@ app.controller("newPostCtrl", function($scope) {
   }
 
   /**
-   * Writes a new comment for the given post.
-   */
-  function createNewComment(postId, username, uid, text) {
-    firebase
-      .database()
-      .ref("post-comments/" + postId)
-      .push({
-        text: text,
-        author: username,
-        uid: uid
-      });
-  }
-
-  /**
-   * Updates the starred status of the post.
-   */
-  function updateStarredByCurrentUser(postElement, starred) {
-    if (starred) {
-      postElement.getElementsByClassName("starred")[0].style.display =
-        "inline-block";
-      postElement.getElementsByClassName("not-starred")[0].style.display =
-        "none";
-    } else {
-      postElement.getElementsByClassName("starred")[0].style.display = "none";
-      postElement.getElementsByClassName("not-starred")[0].style.display =
-        "inline-block";
-    }
-  }
-
-  /**
-   * Updates the number of stars displayed for a post.
-   */
-  function updateStarCount(postElement, nbStart) {
-    postElement.getElementsByClassName("star-count")[0].innerText = nbStart;
-  }
-
-  /**
-   * Creates a comment element and adds it to the given postElement.
-   */
-  function addCommentElement(postElement, id, text, author) {
-    var comment = document.createElement("div");
-    comment.classList.add("comment-" + id);
-    comment.innerHTML =
-      '<span class="username"></span><span class="comment"></span>';
-    comment.getElementsByClassName("comment")[0].innerText = text;
-    comment.getElementsByClassName("username")[0].innerText =
-      author || "Anonymous";
-
-    var commentsContainer = postElement.getElementsByClassName(
-      "comments-container"
-    )[0];
-    commentsContainer.appendChild(comment);
-  }
-
-  /**
-   * Sets the comment's values in the given postElement.
-   */
-  function setCommentValues(postElement, id, text, author) {
-    var comment = postElement.getElementsByClassName("comment-" + id)[0];
-    comment.getElementsByClassName("comment")[0].innerText = text;
-    comment.getElementsByClassName("fp-username")[0].innerText = author;
-  }
-
-  /**
-   * Deletes the comment of the given ID in the given postElement.
-   */
-  function deleteComment(postElement, id) {
-    var comment = postElement.getElementsByClassName("comment-" + id)[0];
-    comment.parentElement.removeChild(comment);
-  }
-
-  /**
-   * Starts listening for new posts and populates posts lists.
-   */
-  function startDatabaseQueries() {
-    // [START my_top_posts_query]
-    var myUserId = firebase.auth().currentUser.uid;
-    var topUserPostsRef = firebase
-      .database()
-      .ref("user-posts/" + myUserId)
-      .orderByChild("starCount");
-    // [END my_top_posts_query]
-    // [START recent_posts_query]
-    var recentPostsRef = firebase
-      .database()
-      .ref("posts")
-      .limitToLast(100);
-    // [END recent_posts_query]
-    var userPostsRef = firebase.database().ref("user-posts/" + myUserId);
-
-    var fetchPosts = function(postsRef, sectionElement) {
-      postsRef.on("child_added", function(data) {
-        var author = data.val().author || "Anonymous";
-        var containerElement = sectionElement.getElementsByClassName(
-          "posts-container"
-        )[0];
-        containerElement.insertBefore(
-          createPostElement(
-            data.key,
-            data.val().title,
-            data.val().body,
-            author,
-            data.val().uid,
-            data.val().authorPic
-          ),
-          containerElement.firstChild
-        );
-      });
-      postsRef.on("child_changed", function(data) {
-        var containerElement = sectionElement.getElementsByClassName(
-          "posts-container"
-        )[0];
-        var postElement = containerElement.getElementsByClassName(
-          "post-" + data.key
-        )[0];
-        postElement.getElementsByClassName(
-          "mdl-card__title-text"
-        )[0].innerText = data.val().title;
-        postElement.getElementsByClassName(
-          "username"
-        )[0].innerText = data.val().author;
-        postElement.getElementsByClassName(
-          "text"
-        )[0].innerText = data.val().body;
-        postElement.getElementsByClassName(
-          "star-count"
-        )[0].innerText = data.val().starCount;
-      });
-      postsRef.on("child_removed", function(data) {
-        var containerElement = sectionElement.getElementsByClassName(
-          "posts-container"
-        )[0];
-        var post = containerElement.getElementsByClassName(
-          "post-" + data.key
-        )[0];
-        post.parentElement.removeChild(post);
-      });
-    };
-
-    // Fetching and displaying all posts of each sections.
-    fetchPosts(topUserPostsRef, topUserPostsSection);
-    fetchPosts(recentPostsRef, recentPostsSection);
-    fetchPosts(userPostsRef, userPostsSection);
-
-    // Keep track of all Firebase refs we are listening to.
-    listeningFirebaseRefs.push(topUserPostsRef);
-    listeningFirebaseRefs.push(recentPostsRef);
-    listeningFirebaseRefs.push(userPostsRef);
-  }
-
-  /**
    * Writes the user's data to the database.
    */
   // [START basic_write]
@@ -419,14 +226,6 @@ app.controller("newPostCtrl", function($scope) {
    * Cleanups the UI and removes all Firebase listeners.
    */
   function cleanupUi() {
-    // Remove all previously displayed posts.
-    topUserPostsSection.getElementsByClassName("posts-container")[0].innerHTML =
-      "";
-    recentPostsSection.getElementsByClassName("posts-container")[0].innerHTML =
-      "";
-    userPostsSection.getElementsByClassName("posts-container")[0].innerHTML =
-      "";
-
     // Stop all currently listening Firebase listeners.
     listeningFirebaseRefs.forEach(function(ref) {
       ref.off();
@@ -453,7 +252,6 @@ app.controller("newPostCtrl", function($scope) {
     if (user) {
       currentUID = user.uid;
       writeUserData(user.uid, user.displayName, user.email, user.photoURL);
-      startDatabaseQueries();
     } else {
       // Set currentUID to null.
       currentUID = null;
@@ -490,13 +288,7 @@ app.controller("newPostCtrl", function($scope) {
    * Displays the given section element and changes styling of the given button.
    */
   function showSection(sectionElement, buttonElement) {
-    recentPostsSection.style.display = "none";
-    userPostsSection.style.display = "none";
-    topUserPostsSection.style.display = "none";
     addPost.style.display = "none";
-    recentMenuButton.classList.remove("is-active");
-    myPostsMenuButton.classList.remove("is-active");
-    myTopPostsMenuButton.classList.remove("is-active");
 
     if (sectionElement) {
       sectionElement.style.display = "block";
